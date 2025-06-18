@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "397893394943",
+    "project_id": "hellofirebase-69a15",
+    "storage_bucket": "hellofirebase-69a15.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:397893394943:android:8029627ca68c71862807ca",
+        "android_client_info": {
+          "package_name": "com.skku.ingame"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcbFpbkgptL1Wbp-oX02X59hPgEUX4DF4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
