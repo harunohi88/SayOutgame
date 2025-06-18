@@ -1,12 +1,16 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Firebase;
 using Firebase.Extensions;
 using Firebase.Auth;
+using Firebase.Firestore;
 
 public class FirebaseTest : MonoBehaviour
 {
     private FirebaseApp _app;
     private FirebaseAuth _auth;
+    private FirebaseFirestore _db;
     
     
     private void Start()
@@ -23,6 +27,7 @@ public class FirebaseTest : MonoBehaviour
                 // where app is a Firebase.FirebaseApp property of your application class.
                 _app = Firebase.FirebaseApp.DefaultInstance;
                 _auth = FirebaseAuth.DefaultInstance;
+                _db = FirebaseFirestore.DefaultInstance;
 
                 Login();
 
@@ -69,6 +74,8 @@ public class FirebaseTest : MonoBehaviour
         });
         
         NicknameChange();
+        // AddMyRanking();
+        GetRankings();
     }
 
     private void NicknameChange()
@@ -104,5 +111,65 @@ public class FirebaseTest : MonoBehaviour
 
             Account account = new Account(email, name, "firebase");
         }
+    }
+
+    private void AddMyRanking()
+    {
+        Ranking ranking = new Ranking("eoheo@gmail.com", "어허", 4000);
+        
+        Dictionary<string, object> rankingDict = new Dictionary<string, object>
+        {
+            { "Email", ranking.Email },
+            { "Nickname", ranking.Nickname },
+            { "Score", ranking.KillCount }
+        };
+        _db.Collection("rankings").Document(ranking.Email).SetAsync(rankingDict).ContinueWithOnMainThread(task => {
+            Debug.Log(String.Format("Added document with ID: {0}.", ranking.Email));
+        });
+    }
+
+    private void GetMyRanking()
+    {
+        Ranking ranking = new Ranking("eoheo@gmail.com", "어허", 4000);
+        
+        DocumentReference docRef = _db.Collection("rankings").Document(ranking.Email);
+        docRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            DocumentSnapshot snapshot = task.Result;
+            if (snapshot.Exists)
+            {
+                Debug.Log(String.Format("Document data for {0} document:", snapshot.Id));
+                Dictionary<string, object> rankings = snapshot.ToDictionary();
+                foreach (KeyValuePair<string, object> pair in rankings)
+                {
+                    Debug.Log(String.Format("{0}: {1}", pair.Key, pair.Value));
+                }
+            }
+            else
+            {
+                Debug.Log(String.Format("Document {0} does not exist!", snapshot.Id));
+            }
+        });
+    }
+
+    private void GetRankings()
+    {
+        Query allRankingsQuery = _db.Collection("rankings");
+        allRankingsQuery.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            QuerySnapshot allCitiesQuerySnapshot = task.Result;
+            foreach (DocumentSnapshot documentSnapshot in allCitiesQuerySnapshot.Documents)
+            {
+                Debug.Log(String.Format("Document data for {0} document:", documentSnapshot.Id));
+                Dictionary<string, object> city = documentSnapshot.ToDictionary();
+                foreach (KeyValuePair<string, object> pair in city)
+                {
+                    Debug.Log(String.Format("{0}: {1}", pair.Key, pair.Value));
+                }
+
+                // Newline to separate entries
+                Debug.Log("");
+            }
+        });
     }
 }
